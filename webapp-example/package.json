@@ -1,0 +1,31 @@
+{
+  "name": "passport-auth-example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+  	"start": "node app.js"
+  },
+  "description": "Test app using Passport for authentication",
+  "author": "BC",
+  "dependencies": {
+    "cfenv": "1.0.x",
+    "body-parser": "^1.13.2",
+    "cookie-parser": "^1.4.0",
+    "ejs": "^2.3.3",
+    "express": "^4.13.1",
+    "express-session": "^1.11.3",
+    "passport": "^0.2.2",
+    "passport-google-oauth20": "",
+    "passport-twitter": "^1.0.3",
+    "passport-facebook": "^2.0.0",
+    "passport-linkedin-oauth2": "",
+    "passport-idaas-openidconnect": "~1.0.0",
+    "passport-ibm-openidconnect": ""
+  },
+  "repository": {},
+  "engines": {
+	"node": "6.x"
+  }
+}
+
+

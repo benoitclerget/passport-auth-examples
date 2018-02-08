@@ -1,0 +1,22 @@
+<%- include('header') %>
+<%- include('navbar') %>
+<p>
+Provider: <%= user.provider %><br/> 
+ID: <%= user.id %><br/>
+<% if (user.username) { %>
+Username: <%= user.username %><br/>
+<% } %>
+Display name: <%= user.displayName %><br/>
+<% if (user.photos && user.photos.length>0 && user.photos[0].value) { %>
+Photo: <img src="<%= user.photos[0].value %>" /><br />
+<% } %>
+<% if (user.emails) { %>
+Email: <%= user.emails[0].value %><br/>
+<% } %>
+</p>
+<p style="font-size:large;color:blue">
+<pre>
+<%- moredata %>
+</pre>
+</p>
+<%- include('footer') %>
