@@ -296,8 +296,9 @@ app.get('/profileibmid', isLoggedIn, function(req, res) {
 	if(claims_json.realmName == 'www.ibm.com') { // authentication IBMID
 		html ="<h1>Hello " + claims_json.given_name + " " + claims_json.family_name + " (authentication IBMID with IBMID user)</h1>";
 		html += "<hr> <a href=\"/\">home</a>";
-	    html += "<br /><h2>Json response from ibmid</h2><pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
-	} else if(claims_json.realmName == 'https://w3id.sso.ibm.com/auth/sps/samlidp/saml20') {  // authentication federated w3id
+		html += "<br /> <a href=\"/logoutibmid\">Logout</a>";
+    html += "<br /><h2>Json response from ibmid</h2><pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
+	} else if(claims_json.realmName == 'https://w3id.sso.ibm.com/auth/sps/samlidp2/saml20') {  // authentication federated w3id
 	    html ="<h1>Hello " + claims_json.given_name + " " + claims_json.family_name + " (authentication IBMID with federated W3Id user)</h1>";
 		var grp146700_found=false;
 		if(claims.blueGroups) {
@@ -312,6 +313,7 @@ app.get('/profileibmid', isLoggedIn, function(req, res) {
 			}
 		}
 		html += "<hr> <a href=\"/\">home</a>";
+		html += "<br /> <a href=\"/logoutibmid\">Logout</a>";
 		html += "<br /><h2>Json response from ibmid</h2><pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
 	} else { // other autentication not supported by this application
 		console.log(claims_json.realmName+' Not suppported !!!');

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-  	"start": "node app.js"
+    "start": "node app.js"
   },
   "description": "Test app using Passport for authentication",
   "author": "BC",
@@ -13,7 +13,7 @@
     "cookie-parser": "1.4.3",
     "ejs": "2.6.1",
     "express": "4.16.4",
-    "express-session": "1.15.16",
+    "express-session": "1.15.6",
     "passport": "0.4.0",
     "passport-google-oauth20": "",
     "passport-twitter": "^1.0.3",
@@ -23,8 +23,6 @@
   },
   "repository": {},
   "engines": {
-	"node": "^8.9.4"
+    "node": "^8.9.4"
   }
 }
-
-
