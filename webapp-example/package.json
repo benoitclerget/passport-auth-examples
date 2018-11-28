@@ -8,23 +8,22 @@
   "description": "Test app using Passport for authentication",
   "author": "BC",
   "dependencies": {
-    "cfenv": "1.0.x",
-    "body-parser": "^1.13.2",
-    "cookie-parser": "^1.4.0",
-    "ejs": "^2.3.3",
-    "express": "^4.13.1",
-    "express-session": "^1.11.3",
-    "passport": "^0.2.2",
+    "cfenv": "1.1.0",
+    "body-parser": "1.18.3",
+    "cookie-parser": "1.4.3",
+    "ejs": "2.6.1",
+    "express": "4.16.4",
+    "express-session": "1.15.16",
+    "passport": "0.4.0",
     "passport-google-oauth20": "",
     "passport-twitter": "^1.0.3",
     "passport-facebook": "^2.0.0",
     "passport-linkedin-oauth2": "",
-    "passport-idaas-openidconnect": "~1.0.0",
-    "passport-ibm-openidconnect": ""
+    "passport-idaas-openidconnect": "2.0.2"
   },
   "repository": {},
   "engines": {
-	"node": "6.x"
+	"node": "^8.9.4"
   }
 }
 
