@@ -11,7 +11,37 @@ const https = require('https')
 var cfenv = require('cfenv');
 
 //read IBMID SSO settings.js
-var settings = require('./settings.js');
+var settings = { 
+  credentials: {
+    webApp_URL: 'https://localhost:3000',
+    GOOGLE: {
+      clientId: 'YourGoogleClientId',
+      clientSecret: 'YourGoogleClientsecret'
+    },
+    TWITTER: {
+      consumerKey: 'YourTwitterKey',
+      consumerSecret: 'YourTwitterSecret'
+    },
+    FACEBOOK: {
+      clientId: 'YourFacebookClientId',
+      clientSecret: 'YourGoogleClientSecret'
+    },
+    LINKEDIN: {
+      clientID: 'YourLinkedInClientId',
+      clientSecret: 'YourLinkedInClientSecret'
+    },
+    IBMID: {
+      client_id: 'YourIBMIDClientID',
+      client_secret: 'YourIBMIDCLientSecret',
+      discovery_url: 'https://www.discoveryendpoint.com/someendpointpathhere'
+    }
+  }
+}
+//get the app environment from Cloud Foundry
+var appEnv = cfenv.getAppEnv();
+if (appEnv.isLocal) {
+  settings = require('./settings_local.js');
+}
 
 //work around intermediate CA issue
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
@@ -126,7 +156,7 @@ passport.use(new OpenIDConnectStrategy({
         scope: 'email',
         response_type: 'code',
         clientSecret: settings.credentials.IBMID.client_secret,
-		    callbackURL : settings.credentials.webApp_URL+'/callback',
+		    callbackURL : settings.credentials.webApp_URL+'/login/ibmid/return',
         skipUserProfile: true},
         function (iss, sub, profile, accessToken, refreshToken, params, done) {
                 process.nextTick(function () {
@@ -220,8 +250,7 @@ app.get('/login/facebook/return',
 
 app.get('/login/ibm', passport.authenticate('openidconnect', {}));
 //handle callback, if authentication succeeds redirect to
-//app.get('/login/ibmid/return',function(req, res, next) {
-app.get('/callback',function(req, res, next) {
+app.get('/login/ibmid/return',function(req, res, next) {
 	//original requested url, otherwise go to /failure
 	//var redirect_url = req.session.originalUrl;
 	//var redirect_url = '/profileibmid';
@@ -349,9 +378,6 @@ function isLoggedIn(req, res, next) {
 		res.redirect('/login');
 	}
 }
-
-//get the app environment from Cloud Foundry
-var appEnv = cfenv.getAppEnv();
 
 let secure_server = {}
 // run in https if local

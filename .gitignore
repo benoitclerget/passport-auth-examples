@@ -1,6 +1,6 @@
 # passport-auth-examples
 package-lock.json
-settings.js
+settings_local.js
 
 # eclipse project
 .project
@@ -44,3 +44,4 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 webapp-example/settings.js
+webapp-example/settings_local.js
