@@ -1,6 +1,8 @@
 var express = require('express');
 var passport = require('passport');
-var util = require('util');
+//var util = require('util');
+var fs = require('fs')
+const https = require('https')
 
 //var ensureLoggedIn=require('connect-ensure-login').ensureLoggedIn();
 
@@ -38,10 +40,11 @@ if(process.env.IBMID_client_id)
 		settings.credentials.IBMID.client_id= process.env.IBMID_client_id;
 if(process.env.IBMID_client_secret)
 		settings.credentials.IBMID.client_secret= process.env.IBMID_client_secret;
-	
-
+if(process.env.IBMID_discovery_url)
+	settings.credentials.IBMID.discovery_url= process.env.IBMID_discovery_url;
 if (process.env.webApp_URL)
 	settings.credentials.webApp_URL= process.env.webApp_URL;
+
 
 // Configure the Google strategy for use by Passport.
 //
@@ -51,9 +54,7 @@ if (process.env.webApp_URL)
 // with a user object, which will be set at `req.user` in route handlers after
 // authentication.
 // app registration: https://console.developers.google.com/apis/credentials
-
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
-
 passport.use(new GoogleStrategy({
     clientID: settings.credentials.GOOGLE.clientId,
     clientSecret: settings.credentials.GOOGLE.clientSecret,
@@ -70,7 +71,6 @@ passport.use(new GoogleStrategy({
 
 // Twitter Application Management (https://apps.twitter.com)
 var TwitterStrategy = require('passport-twitter').Strategy;
-
 passport.use(new TwitterStrategy({
     consumerKey: settings.credentials.TWITTER.consumerKey,
     consumerSecret: settings.credentials.TWITTER.consumerSecret,
@@ -87,7 +87,6 @@ passport.use(new TwitterStrategy({
 
 // facebook https://developers.facebook.com/apps/
 var FacebookStrategy = require('passport-facebook').Strategy;
-
 passport.use(new FacebookStrategy({
     clientID: settings.credentials.FACEBOOK.clientId,
     clientSecret: settings.credentials.FACEBOOK.clientSecret,
@@ -119,65 +118,24 @@ passport.use(new LinkedInStrategy({
   }
 ));
 
-
-// IBMID SSO https://w3.innovate.ibm.com/tools/sso/home.html
-var OpenIDConnectStrategy = require('passport-idaas-openidconnect').IDaaSOIDCStrategy;
-
-/*
-var IBMIDStrategy = new OpenIDConnectStrategy({
-                authorizationURL : settings.credentials.IBMID.authorization_url,
-                tokenURL : settings.credentials.IBMID.token_url,
-                clientID : settings.credentials.IBMID.client_id,
-                scope: 'openid',
-                response_type: 'code',
-                clientSecret : settings.credentials.IBMID.client_secret,
-                callbackURL : settings.credentials.IBMID.callback_url,
-                skipUserProfile: true,
-                issuer: settings.credentials.IBMID.issuer_id,
-		addCACert: true,
-		CACertPathList:	[
-			'/verisign-root-ca.pem',
-			'/symantec.pem',
-			'/blueidSSL.pem',
-			'/idaas.iam.ibm.com.pem']	
-		}, 
-         function(iss, sub, profile, accessToken, refreshToken, params, done)  {
-	        process.nextTick(function() {
-                profile.accessToken = accessToken;
-		profile.refreshToken = refreshToken;
-		done(null, profile);
-	      	})
-}); 
-
-passport.use(IBMIDStrategy); 
-*/
-
+// IBMID SSO Self
+var OpenIDConnectStrategy = require('passport-ci-oidc').IDaaSOIDCStrategy;
 passport.use(new OpenIDConnectStrategy({
-	authorizationURL : settings.credentials.IBMID.authorization_url,
-    tokenURL : settings.credentials.IBMID.token_url,
-    clientID : settings.credentials.IBMID.client_id,
-    scope: 'openid',
-    response_type: 'code',
-    clientSecret : settings.credentials.IBMID.client_secret,
-    callbackURL : settings.credentials.webApp_URL+'/login/ibmid/return',
-    skipUserProfile: true,
-    issuer: settings.credentials.IBMID.issuer_id,
-	addCACert: true,
-	CACertPathList:	[
-		'/verisign-root-ca.pem',
-		'/symantec.pem',
-		'/blueidSSL.pem',
-		'/idaas.iam.ibm.com.pem']	
-	}, 
-    function(iss, sub, profile, accessToken, refreshToken, params, done)  {
-        process.nextTick(function() {
-        	profile.accessToken = accessToken;
-        	profile.refreshToken = refreshToken;
-        	done(null, profile);
-	    })
-	})
-);
-
+        discoveryURL: settings.credentials.IBMID.discovery_url,
+        clientID: settings.credentials.IBMID.client_id,
+        scope: 'email',
+        response_type: 'code',
+        clientSecret: settings.credentials.IBMID.client_secret,
+		    callbackURL : settings.credentials.webApp_URL+'/callback',
+        skipUserProfile: true},
+        function (iss, sub, profile, accessToken, refreshToken, params, done) {
+                process.nextTick(function () {
+                        profile.accessToken = accessToken;
+                        profile.refreshToken = refreshToken;
+                        done(null, profile);
+                })
+        }
+))
 
 
 // Configure Passport authenticated session persistence.
@@ -190,11 +148,11 @@ passport.use(new OpenIDConnectStrategy({
 // example does not have a database, the complete Facebook profile is serialized
 // and deserialized.
 passport.serializeUser(function(user, cb) {
-  cb(null, user);
+	cb(null, user);
 });
-
+  
 passport.deserializeUser(function(obj, cb) {
-  cb(null, obj);
+	cb(null, obj);
 });
 
 
@@ -230,17 +188,14 @@ app.get('/login',
 
 app.get('/login/google',
   passport.authenticate('google', { scope: ['profile'] }));
-
 app.get('/login/google/return', 
   passport.authenticate('google', { failureRedirect: '/login' }),
   function(req, res) {
     res.redirect('/');
   });
 
-
 app.get('/login/twitter',
 		passport.authenticate('twitter'));
-
 app.get('/login/twitter/return', 
 	  passport.authenticate('twitter', { failureRedirect: '/login' }),
 	  function(req, res) {
@@ -249,7 +204,6 @@ app.get('/login/twitter/return',
 
 app.get('/login/linkedin',
 		passport.authenticate('linkedin'));
-
 app.get('/login/linkedin/return', 
 	  passport.authenticate('linkedin', { failureRedirect: '/login' }),
 	  function(req, res) {
@@ -258,7 +212,6 @@ app.get('/login/linkedin/return',
 
 app.get('/login/facebook',
 		  passport.authenticate('facebook'));
-
 app.get('/login/facebook/return', 
 	  passport.authenticate('facebook', { failureRedirect: '/login' }),
 		  function(req, res) {
@@ -266,27 +219,74 @@ app.get('/login/facebook/return',
 });
 
 app.get('/login/ibm', passport.authenticate('openidconnect', {}));
-
 //handle callback, if authentication succeeds redirect to
-app.get('/login/ibmid/return',function(req, res, next) {
+//app.get('/login/ibmid/return',function(req, res, next) {
+app.get('/callback',function(req, res, next) {
 	//original requested url, otherwise go to /failure
 	//var redirect_url = req.session.originalUrl;
-	var redirect_url = '/profileibmid';
+	//var redirect_url = '/profileibmid';
+	var redirect_url = '/profile';
 	passport.authenticate('openidconnect', {
 		successRedirect: redirect_url,
 		failureRedirect: '/failure',
 	})(req,res,next);
 });
-
 //IBMID SSO login failure page
 app.get('/failure', function(req, res) {
-	res.send('login failed'); });
+	res.send('login failed'); 
+});
 
 
 app.get('/profile',isLoggedIn, function(req, res){
-	res.render('profile',{navbartext: 'Your profile', user: req.user, moredata: JSON.stringify(req.user, null, 4) });
+  let html="";
+  let navbartext="Your profile";
+  if(req.user && req.user['_json'] && req.user['_json'].realmName) {
+    let claims_json = req.user['_json'];
+    let claims = req.user;
+    //console.log(claims);
+    // test realm and extract corresponding infos
+    if(claims_json.realmName == 'www.ibm.com') { // authentication IBMID
+      req.user.provider = 'IBMID (www.ibm.com)'
+      html ="<h2>Hello " + claims_json.given_name + " " + claims_json.family_name + " (authentication IBMID with IBMID user)</h2>";
+      //html += "<hr> <a href=\"/\">home</a>";
+      //html += "<br /> <a href=\"/logoutibmid\">Logout</a>";
+      //html += "<br /><h3>Json response from ibmid</h3><pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
+    } else if(claims_json.realmName == 'https://w3id.sso.ibm.com/auth/sps/samlidp2/saml20' || claims_json.realmName == 'https://w3id.alpha.sso.ibm.com/auth/sps/samlidp2/saml20') {  // authentication federated w3id (prod or staging)
+      if(claims_json.realmName == 'https://w3id.sso.ibm.com/auth/sps/samlidp2/saml20') {
+        req.user.provider = 'IBMID (w3id.sso.ibm.com)'
+      } else {
+        req.user.provider = 'IBMID (w3id.alpha.sso.ibm.com)'
+      } 
+      html ="<h2>Hello " + claims_json.given_name + " " + claims_json.family_name + " (authentication IBMID with federated W3Id user)</h2>";
+      var grp148100_found=false;
+      if(claims.blueGroups) {
+        for(i=0;i<claims.blueGroups.length;i++)
+          if(claims.blueGroups[i]=='148100')
+            grp148100_found=true;
+        if(grp148100_found) {
+          //console.log(claims);
+          html +="<p>Congratulation, you are a member of 148100 bluegroup!!!</p>";
+        } else {
+          html +="<p>You are a not member of 148100 bluegroup!!!</p>";
+        }
+      }
+      //html += "<hr> <a href=\"/\">home</a>";
+      //html += "<br /> <a href=\"/logoutibmid\">Logout</a>";
+      //html += "<br /><h3>Json response from ibmid</h3><pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
+    } else { // other autentication not supported by this application
+      console.log(claims_json.realmName+' Not suppported !!!');
+      html="<p>Hello your authentication is not supported: " + claims_json.realmName+"</p>"
+      html += "<hr> <a href=\"/\">home</a>";
+    }
+    navbartext=`Your ${claims_json.realmName} profile`
+  }
+  html += "<br /><h3>Json response from auth provider</h3><pre style='font-size:large;color:blue'>" + JSON.stringify(req.user, null, 4) + "</pre>";
+  //res.render('profile',{navbartext: 'Your profile', user: req.user, moredata: JSON.stringify(req.user, null, 4) });
+  //res.render('profile',{navbartext: 'Your profile', user: req.user, moredata: JSON.stringify(req.user, null, 4) });
+  res.render('profile',{navbartext: navbartext, user: req.user, htmlcontent: html});
 });
 
+/*
 app.get('/profileibmid', isLoggedIn, function(req, res) {
 	var claims_json = req.user['_json'];
 	var claims = req.user;
@@ -298,18 +298,18 @@ app.get('/profileibmid', isLoggedIn, function(req, res) {
 		html += "<hr> <a href=\"/\">home</a>";
 		html += "<br /> <a href=\"/logoutibmid\">Logout</a>";
     html += "<br /><h2>Json response from ibmid</h2><pre>" + JSON.stringify(req.user, null, 4) + "</pre>";
-	} else if(claims_json.realmName == 'https://w3id.sso.ibm.com/auth/sps/samlidp2/saml20') {  // authentication federated w3id
-	    html ="<h1>Hello " + claims_json.given_name + " " + claims_json.family_name + " (authentication IBMID with federated W3Id user)</h1>";
-		var grp146700_found=false;
+	} else if(claims_json.realmName == 'https://w3id.sso.ibm.com/auth/sps/samlidp2/saml20' || claims_json.realmName == 'https://w3id.alpha.sso.ibm.com/auth/sps/samlidp2/saml20') {  // authentication federated w3id (prod or staging)
+	  html ="<h1>Hello " + claims_json.given_name + " " + claims_json.family_name + " (authentication IBMID with federated W3Id user)</h1>";
+		var grp148100_found=false;
 		if(claims.blueGroups) {
 			for(i=0;i<claims.blueGroups.length;i++)
-				if(claims.blueGroups[i]=='146700')
-					grp146700_found=true;
-			if(grp146700_found) {
+				if(claims.blueGroups[i]=='148100')
+					grp148100_found=true;
+			if(grp148100_found) {
 				//console.log(claims);
-				html +="<p>Congratulation, you are a member of 146700 bluegroup!!!</p>";
+				html +="<p>Congratulation, you are a member of 148100 bluegroup!!!</p>";
 			} else {
-				html +="<p>You are a not member of 146700 bluegroup!!!</p>";
+				html +="<p>You are a not member of 148100 bluegroup!!!</p>";
 			}
 		}
 		html += "<hr> <a href=\"/\">home</a>";
@@ -319,9 +319,9 @@ app.get('/profileibmid', isLoggedIn, function(req, res) {
 		console.log(claims_json.realmName+' Not suppported !!!');
 		html="<p>Hello your authentication is not supported: " + claims_json.realmName+"</p>"
 	}
-    res.render('profileibmid',{navbartext:'Your IBMID profile', htmlcontent: html});
+  res.render('profileibmid',{navbartext:'Your IBMID profile', htmlcontent: html});
 });
-
+*/
 
 // route for logging out
 app.get('/logout', function(req, res) {
@@ -330,32 +330,49 @@ app.get('/logout', function(req, res) {
 });
 
 //route for logging out (IBMID)
+/*
 app.get('/logoutibmid', function(req, res) {
     req.session.destroy();
     req.logout();
-    res.render('slo');
+    //res.render('slo');
+    res.redirect('/');
 });
-
-
+*/
 //route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
     // if user is authenticated in the session, carry on
-    if (req.isAuthenticated())
+    if (req.isAuthenticated()) {
         return next();
-    // if they aren't save requested url in session so that it can be used to access the requested page
-	req.session.originalUrl = req.originalUrl;
-    res.redirect('/login');
+	} else {
+		// if they aren't save requested url in session so that it can be used to access the requested page
+		req.session.originalUrl = req.originalUrl;
+		res.redirect('/login');
+	}
 }
 
 //get the app environment from Cloud Foundry
 var appEnv = cfenv.getAppEnv();
 
-// start server on the specified port and binding host
+let secure_server = {}
+// run in https if local
+if (appEnv.isLocal) {
+	// start http and https server on localhost
+  secure_server = https.createServer({
+        key: fs.readFileSync('key.pem'),
+        cert: fs.readFileSync('cert.pem')
+      }, app)
+}
 
-app.listen(appEnv.port, '0.0.0.0', function() {
-  // print a message when the server starts listening
-  console.log("server starting on " + appEnv.url);
-});
-
-
-//app.listen(3000);
+		
+if (appEnv.isLocal) {
+  // start secure_server on localhost
+  secure_server.listen(3000, 'localhost', function(){
+		console.log("secure server starting on localhost:3000")
+	})
+} else {
+	// start server on the specified port and binding host
+	app.listen(appEnv.port, '0.0.0.0', function() {
+   	// print a message when the server starts listening
+		console.log("server starting on " + appEnv.url)
+	})
+}

@@ -4,7 +4,7 @@ This web app provides some examples of passport-auth usage. You can choose your 
 - Twitter (Twitter Application Management https://apps.twitter.com)
 - LinkedIn (LinkedIn developer https://www.linkedin.com/developer/apps)
 - Facebook (Facebook for developers https://developers.facebook.com/apps)
-- IBMID (IBM Self service provisioner *[you need an IBM intranet account]* https://w3.innovate.ibm.com/tools/sso/home.html)
+- IBMID (IBM Self service provisioner *[you need an IBM intranet account]* https://w3.ibm.com/tools/sso)
 
 See running example application: https://benoit-webapp.eu-gb.mybluemix.net
 

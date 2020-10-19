@@ -1,7 +1,6 @@
 {
   "name": "passport-auth-example",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.0.1",
   "scripts": {
     "start": "node app.js"
   },
@@ -10,19 +9,20 @@
   "dependencies": {
     "cfenv": "1.1.0",
     "body-parser": "1.18.3",
-    "cookie-parser": "1.4.3",
+    "cookie-parser": "1.4.4",
     "ejs": "2.6.1",
     "express": "4.16.4",
     "express-session": "1.15.6",
-    "passport": "0.4.0",
+    "passport": "0.4.1",
     "passport-google-oauth20": "",
     "passport-twitter": "^1.0.3",
     "passport-facebook": "^2.0.0",
     "passport-linkedin-oauth2": "",
-    "passport-idaas-openidconnect": "2.0.2"
+    "passport-strategy": "latest",
+    "passport-ci-oidc": "latest"
   },
   "repository": {},
   "engines": {
-    "node": "^8.9.4"
+    "node": "12.16.2"
   }
 }

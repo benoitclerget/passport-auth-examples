@@ -1,7 +1,10 @@
 <%- include('header') %>
 <%- include('navbar') %>
-<p>
-Provider: <%= user.provider %><br/> 
+<hr>
+<a href="/">home</a>
+<br /><a href="/logout">Logout</a>
+<hr>
+<p>Provider: <%= user.provider %><br/> 
 ID: <%= user.id %><br/>
 <% if (user.username) { %>
 Username: <%= user.username %><br/>
@@ -14,9 +17,5 @@ Photo: <img src="<%= user.photos[0].value %>" /><br />
 Email: <%= user.emails[0].value %><br/>
 <% } %>
 </p>
-<p style="font-size:large;color:blue">
-<pre>
-<%- moredata %>
-</pre>
-</p>
+<%- htmlcontent %>
 <%- include('footer') %>

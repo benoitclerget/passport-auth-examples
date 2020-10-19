@@ -1,0 +1,25 @@
+exports.credentials={
+		webApp_URL: 'https://localhost:3000',
+		GOOGLE: {
+			clientId: 'YourGoogleClientId',
+			clientSecret: 'YourGoogleClientsecret'
+		},
+		TWITTER: {
+			consumerKey: 'YourTwitterKey',
+			consumerSecret: 'YourTwitterSecret'
+		},
+		FACEBOOK: {
+			clientId: 'YourFacebookClientId',
+			clientSecret: 'YourGoogleClientSecret'
+		},
+		LINKEDIN: {
+			clientID: 'YourLinkedInClientId',
+			clientSecret: 'YourLinkedInClientSecret'
+		},
+		IBMID: {
+			client_id: 'YourIBMIDClientID',
+			client_secret: 'YourIBMIDCLientSecret',
+			discovery_url: 'https://www.discoveryendpoint.com/someendpointpathhere'
+		}
+}
+
