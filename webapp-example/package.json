@@ -7,7 +7,7 @@
   "description": "Test app using Passport for authentication",
   "author": "BC",
   "dependencies": {
-    "cfenv": "1.1.0",
+    "cfenv": "1.2.4",
     "body-parser": "1.18.3",
     "cookie-parser": "1.4.4",
     "ejs": "2.6.1",
@@ -15,11 +15,12 @@
     "express-session": "1.15.6",
     "passport": "0.4.1",
     "passport-google-oauth20": "",
-    "passport-twitter": "^1.0.3",
+    "passport-twitter": "^1.0.4",
     "passport-facebook": "^2.0.0",
     "passport-linkedin-oauth2": "",
     "passport-strategy": "latest",
-    "passport-ci-oidc": "latest"
+    "passport-ci-oidc": "latest",
+    "xmldom": "0.5.0"
   },
   "repository": {},
   "engines": {
